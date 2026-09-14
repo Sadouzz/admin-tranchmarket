@@ -1,0 +1,115 @@
+<div class="max-w-6xl mx-auto space-y-6">
+  <!-- Header -->
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+    <div>
+      <h1 class="text-2xl font-bold text-white tracking-tight">Marques (Brands)</h1>
+      <p class="text-sm text-slate-400 mt-1">Module personnalisé Medusa pour les marques de véhicules et pièces</p>
+    </div>
+    <button
+      (click)="fetchBrands()"
+      class="inline-flex items-center gap-2 px-4 py-2 rounded-xl bg-slate-800 hover:bg-slate-700 text-slate-200 text-sm font-medium border border-slate-700 transition-colors"
+    >
+      <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M21 12a9 9 0 0 0-9-9 9.75 9.75 0 0 0-6.74 2.74L3 8"/>
+        <path d="M3 3v5h5"/>
+        <path d="M3 12a9 9 0 0 0 9 9 9.75 9.75 0 0 0 6.74-2.74L21 16"/>
+        <path d="M16 21h5v-5"/>
+      </svg>
+      Actualiser
+    </button>
+  </div>
+
+  <!-- Create Brand Card -->
+  <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl p-6 shadow-xl">
+    <h2 class="text-base font-semibold text-white mb-3">Ajouter une nouvelle marque</h2>
+    <form (ngSubmit)="createBrand()" class="flex flex-col sm:flex-row gap-3">
+      <input
+        type="text"
+        [ngModel]="newBrandName()"
+        (ngModelChange)="newBrandName.set($event)"
+        name="brandName"
+        placeholder="Ex: Toyota, Peugeot, Yamaha..."
+        required
+        class="flex-1 bg-slate-950/60 border border-slate-700/80 text-slate-100 placeholder-slate-500 rounded-xl px-4 py-2.5 text-sm focus:outline-none focus:border-indigo-500 focus:ring-2 focus:ring-indigo-500/20"
+      />
+      <button
+        type="submit"
+        [disabled]="isCreating() || !newBrandName().trim()"
+        class="px-5 py-2.5 rounded-xl bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-sm transition-all disabled:opacity-50 flex items-center justify-center gap-2 shrink-0"
+      >
+        @if (isCreating()) {
+          <span class="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full"></span>
+          <span>Création...</span>
+        } @else {
+          <span>Ajouter la marque</span>
+        }
+      </button>
+    </form>
+
+    @if (successMessage(); as msg) {
+      <div class="mt-3 p-3 rounded-xl bg-emerald-950/50 border border-emerald-800 text-emerald-300 text-xs">
+        {{ msg }}
+      </div>
+    }
+  </div>
+
+  <!-- Error Alert -->
+  @if (errorMessage(); as error) {
+    <div class="p-4 rounded-xl bg-rose-950/50 border border-rose-800 text-rose-300 text-sm flex items-center gap-3">
+      <svg class="w-5 h-5 flex-shrink-0" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/>
+      </svg>
+      <span>{{ error }}</span>
+    </div>
+  }
+
+  <!-- Loading State -->
+  @if (isLoading()) {
+    <div class="bg-slate-900/60 border border-slate-800 rounded-2xl p-12 flex flex-col items-center justify-center text-slate-400 gap-3">
+      <span class="animate-spin w-6 h-6 border-2 border-indigo-500 border-t-transparent rounded-full"></span>
+      <p class="text-sm">Chargement des marques depuis le module Brand...</p>
+    </div>
+  } @else {
+    <!-- Brands Table -->
+    <div class="bg-slate-900/60 border border-slate-800/80 rounded-2xl overflow-hidden shadow-xl">
+      <div class="overflow-x-auto">
+        <table class="w-full text-left text-sm text-slate-300">
+          <thead class="bg-slate-950/60 text-xs font-semibold text-slate-400 uppercase tracking-wider border-b border-slate-800">
+            <tr>
+              <th scope="col" class="px-6 py-4">Nom de la marque</th>
+              <th scope="col" class="px-6 py-4">Slug</th>
+              <th scope="col" class="px-6 py-4">Date de création</th>
+              <th scope="col" class="px-6 py-4">ID</th>
+            </tr>
+          </thead>
+          <tbody class="divide-y divide-slate-800/80">
+            @for (brand of brands(); track brand.id) {
+              <tr class="hover:bg-slate-800/30 transition-colors">
+                <td class="px-6 py-4 font-semibold text-white">
+                  {{ brand.name }}
+                </td>
+                <td class="px-6 py-4">
+                  <span class="font-mono text-xs px-2.5 py-1 rounded-md bg-slate-800 text-indigo-300 border border-slate-700">
+                    {{ brand.slug }}
+                  </span>
+                </td>
+                <td class="px-6 py-4 text-xs text-slate-400">
+                  {{ brand.created_at | date:'mediumDate' }}
+                </td>
+                <td class="px-6 py-4 font-mono text-xs text-slate-500">
+                  {{ brand.id }}
+                </td>
+              </tr>
+            } @empty {
+              <tr>
+                <td colspan="4" class="px-6 py-12 text-center text-slate-500 text-sm">
+                  Aucune marque enregistrée pour le moment.
+                </td>
+              </tr>
+            }
+          </tbody>
+        </table>
+      </div>
+    </div>
+  }
+</div>
